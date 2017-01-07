@@ -24,3 +24,4 @@ Things you may want to cover:
 * ...
 
 This is git test.
+How to run the test suite.
