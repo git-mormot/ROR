@@ -35,7 +35,7 @@ class LineItemsController < ApplicationController
         format.js   { @current_item = @line_item }
         format.json { render :show, status: :created, location: @line_item }
       else
-        Rails.logger.info @line_item.errors.inspect
+        # Rails.logger.info @line_item.errors.inspect
         format.html { render :new }
         format.json { render json: @line_item.errors, status: :unprocessable_entity }
       end
