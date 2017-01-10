@@ -1,10 +1,10 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
-
+  before_action :set_cart
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    @users = User.order(:name)
   end
 
   # GET /users/1
@@ -25,15 +25,16 @@ class UsersController < ApplicationController
   # POST /users.json
   def create
     @user = User.new(user_params)
-
+    # @user
     respond_to do |format|
       if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
+        format.html { redirect_to users_url, notice: "User #{@user.name} was successfully created." }
         format.json { render :show, status: :created, location: @user }
       else
         format.html { render :new }
         format.json { render json: @user.errors, status: :unprocessable_entity }
       end
+      logger.debug @user.errors.full_messages
     end
   end
 
@@ -42,7 +43,7 @@ class UsersController < ApplicationController
   def update
     respond_to do |format|
       if @user.update(user_params)
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
+        format.html { redirect_to users_url, notice: "User #{@user.name} was successfully updated." }
         format.json { render :show, status: :ok, location: @user }
       else
         format.html { render :edit }
@@ -54,9 +55,15 @@ class UsersController < ApplicationController
   # DELETE /users/1
   # DELETE /users/1.json
   def destroy
-    @user.destroy
+    @user = User.find(params[:id])
+    begin
+      @user.destroy
+      flash[:notice] = "User #{@user.name} deleted"
+    rescue Exception => e
+      flash[:notice] = e.message
+    end
     respond_to do |format|
-      format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
+      format.html { redirect_to users_url }
       format.json { head :no_content }
     end
   end
@@ -67,8 +74,12 @@ class UsersController < ApplicationController
       @user = User.find(params[:id])
     end
 
+    def set_cart
+      @cart = current_cart
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
-      params.require(:user).permit(:name, :password_digest)
+      params.require(:user).permit(:name, :password, :password_confirmation)
     end
 end
